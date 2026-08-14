@@ -36,7 +36,7 @@
     image-rendering: crisp-edges;
   }
 
-  /* Kawalan Sentuh (Touch Controls untuk Mobile / Testing) */
+  /* Kawalan Sentuh (Touch Controls untuk Mobile) */
   #touch-pad {
     position: fixed;
     left: 0;
@@ -98,42 +98,46 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// 1. MUAT TURUN GAMBAR & SPRITE (Disesuaikan mengikut nama fail di GitHub)
+// Canvas sementara untuk proses buang background hitam Aryan
+const pCanvas = document.createElement('canvas');
+const pCtx = pCanvas.getContext('2d');
+
+// 1. MUAT TURUN GAMBAR (Ikut ejaan tepat kat GitHub kau)
 const bgImg = new Image();
-bgImg.src = 'Bg .PNG'; // Background utama
+bgImg.src = 'Bg .PNG';
 
 const aryanImg = new Image();
-aryanImg.src = 'Aryan.JPG'; // Sprite Sheet Aryan (Tukar kepada .JPG huruf besar)
+aryanImg.src = 'Aryan.JPG';
 
 const k1Img = new Image();
-k1Img.src = 'K1.jpg'; // Tukar kepada K1.jpg (K huruf besar, .jpg)
+k1Img.src = 'K1.jpg';
 
 const k2Img = new Image();
-k2Img.src = 'K2.jpg'; // Tukar kepada K2.jpg (K huruf besar, .jpg)
+k2Img.src = 'K2.jpg';
 
 const bImg = new Image();
-bImg.src = 'B.jpg';   // Tukar kepada B.jpg (B huruf besar, .jpg)
+bImg.src = 'B.jpg';
 
 // 2. TETAPAN PLATFORM / SCENE
 const platforms = [
-  { x: 0,   y: 450, w: 960, h: 90 }, // Tanah Utama
-  { x: 120, y: 340, w: 180, h: 20 }, // Platform Terapung Kiri
-  { x: 390, y: 260, w: 200, h: 20 }, // Platform Terapung Tengah
-  { x: 670, y: 340, w: 180, h: 20 }  // Platform Terapung Kanan
+  { x: 0,   y: 450, w: 960, h: 90 }, // Ground Level
+  { x: 120, y: 340, w: 180, h: 20 }, // Platform Kiri
+  { x: 390, y: 260, w: 200, h: 20 }, // Platform Tengah
+  { x: 670, y: 340, w: 180, h: 20 }  // Platform Kanan
 ];
 
-// 3. TETAPAN ITEM TERAPUNG
+// 3. ITEM TERAPUNG
 const floatingItems = [
   { img: k1Img, x: 180, baseY: 280, w: 45, h: 45, bobOffset: 0 },
   { img: bImg,  x: 470, baseY: 200, w: 45, h: 45, bobOffset: 1.5 },
   { img: k2Img, x: 730, baseY: 280, w: 45, h: 45, bobOffset: 3.0 }
 ];
 
-// 4. PLAYER (ARYAN) LOGIC & SPRITE ANIMATION
+// 4. TETAPAN PLAYER (ARYAN) - DISESUAIKAN UNTUK GRID 2x3
 const player = {
   x: 50,
   y: 350,
-  w: 60,
+  w: 50,
   h: 70,
   speed: 4.5,
   velX: 0,
@@ -142,13 +146,15 @@ const player = {
   grounded: false,
   facingLeft: false,
   
-  totalFrames: 4,
+  cols: 2,           // 2 Lajur
+  rows: 3,           // 3 Baris
+  totalFrames: 6,    // 6 Frame berjalan
   currentFrame: 0,
   frameTimer: 0,
-  frameSpeed: 6
+  frameSpeed: 5      // Kelajuan tukar frame animasi
 };
 
-// 5. KAWALAN KEYBOARD & ANDROID TV REMOTE
+// 5. KAWALAN KEYBOARD & TOUCH
 const keys = {};
 
 window.addEventListener('keydown', (e) => {
@@ -162,7 +168,6 @@ window.addEventListener('keyup', (e) => {
   keys[e.code] = false;
 });
 
-// Sokongan Kawalan Touch Screen
 function setupTouchButton(id, keyName) {
   const btn = document.getElementById(id);
   btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; btn.classList.add('active'); });
@@ -178,6 +183,7 @@ let globalTime = 0;
 function update() {
   globalTime += 0.05;
 
+  // A. Pergerakan
   if (keys['ArrowRight'] || keys['KeyD']) {
     player.velX = player.speed;
     player.facingLeft = false;
@@ -188,15 +194,18 @@ function update() {
     player.velX = 0;
   }
 
+  // B. Lompat
   if ((keys['ArrowUp'] || keys['Space'] || keys['Enter']) && player.grounded) {
     player.velY = -12.5;
     player.grounded = false;
   }
 
+  // C. Graviti & Posisi
   player.velY += 0.55;
   player.x += player.velX;
   player.y += player.velY;
 
+  // D. Collision Platforms
   player.grounded = false;
   for (let p of platforms) {
     if (
@@ -215,6 +224,7 @@ function update() {
   if (player.x < 0) player.x = 0;
   if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
+  // E. Animasi Frame
   if (player.velX !== 0 && player.grounded) {
     player.frameTimer++;
     if (player.frameTimer >= player.frameSpeed) {
@@ -222,17 +232,17 @@ function update() {
       player.frameTimer = 0;
     }
   } else if (!player.grounded) {
-    player.currentFrame = 1;
+    player.currentFrame = 1; // Frame melompat
   } else {
-    player.currentFrame = 0;
+    player.currentFrame = 0; // Standby frame
   }
 }
 
-// 7. RENDER / LUKIS DI SKRIN
+// 7. RENDER / DRAW FUNCTION
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // A. Lukis BG
+  // A. Lukis Background
   if (bgImg.complete && bgImg.naturalWidth !== 0) {
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
   } else {
@@ -240,10 +250,9 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // B. Lukis Item Terapung
+  // B. Lukis Floating Items
   floatingItems.forEach(item => {
     const floatY = item.baseY + Math.sin(globalTime + item.bobOffset) * 6;
-
     if (item.img.complete && item.img.naturalWidth !== 0) {
       ctx.drawImage(item.img, item.x, floatY, item.w, item.h);
     } else {
@@ -254,26 +263,44 @@ function draw() {
     }
   });
 
-  // C. Lukis Player (Aryan)
+  // C. Lukis Player (Aryan Grid 2x3)
   if (aryanImg.complete && aryanImg.naturalWidth !== 0) {
-    const frameW = aryanImg.width / player.totalFrames;
-    const frameH = aryanImg.height;
+    const frameW = aryanImg.width / player.cols;
+    const frameH = aryanImg.height / player.rows;
+
+    const col = player.currentFrame % player.cols;
+    const row = Math.floor(player.currentFrame / player.cols);
+
+    const sourceX = col * frameW;
+    const sourceY = row * frameH;
+
+    // Proses hilangkan background hitam
+    pCanvas.width = frameW;
+    pCanvas.height = frameH;
+    pCtx.clearRect(0, 0, frameW, frameH);
+    pCtx.drawImage(aryanImg, sourceX, sourceY, frameW, frameH, 0, 0, frameW, frameH);
+
+    try {
+      const imgData = pCtx.getImageData(0, 0, frameW, frameH);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        // Jika piksel berwarna hitam, tukar alpha jadi 0 (transparent)
+        if (data[i] < 20 && data[i+1] < 20 && data[i+2] < 20) {
+          data[i+3] = 0;
+        }
+      }
+      pCtx.putImageData(imgData, 0, 0);
+    } catch(e) {
+      // Fallback sekiranya cross-origin menyekat imageData
+    }
 
     ctx.save();
     if (player.facingLeft) {
       ctx.translate(player.x + player.w, player.y);
       ctx.scale(-1, 1);
-      ctx.drawImage(
-        aryanImg,
-        player.currentFrame * frameW, 0, frameW, frameH,
-        0, 0, player.w, player.h
-      );
+      ctx.drawImage(pCanvas, 0, 0, frameW, frameH, 0, 0, player.w, player.h);
     } else {
-      ctx.drawImage(
-        aryanImg,
-        player.currentFrame * frameW, 0, frameW, frameH,
-        player.x, player.y, player.w, player.h
-      );
+      ctx.drawImage(pCanvas, 0, 0, frameW, frameH, player.x, player.y, player.w, player.h);
     }
     ctx.restore();
   } else {
