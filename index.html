@@ -5,172 +5,168 @@
 <title>Aryan Adventure - Android TV Edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-  * {
-    box-sizing: border-box;
-  }
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow: hidden;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    touch-action: none;
-  }
-  #stage {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  canvas {
-    background: #000;
-    width: 100%;
-    max-width: 177.78vh; /* 16:9 Aspect Ratio */
-    max-height: 56.25vw;
-    outline: none;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-  }
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    touch-action: none;
+  }
+  #stage {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  canvas {
+    background: #000;
+    width: 100%;
+    max-width: 177.78vh; /* 16:9 Aspect Ratio */
+    max-height: 56.25vw;
+    outline: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
 
-  /* Kawalan Sentuh (Touch Controls untuk Mobile / Testing) */
-  #touch-pad {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 24px;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 40px;
-    pointer-events: none;
-    z-index: 20;
-    user-select: none;
-  }
-  .touch-group {
-    display: flex;
-    gap: 15px;
-    pointer-events: auto;
-  }
-  .pad-btn {
-    pointer-events: auto;
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(4px);
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    color: #fff;
-    font-size: 24px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  }
-  .pad-btn:active, .pad-btn.active {
-    background: rgba(255, 213, 79, 0.6);
-    border-color: #ffd54f;
-    transform: scale(0.95);
-  }
+  /* Kawalan Sentuh (Touch Controls untuk Mobile / Testing) */
+  #touch-pad {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 40px;
+    pointer-events: none;
+    z-index: 20;
+    user-select: none;
+  }
+  .touch-group {
+    display: flex;
+    gap: 15px;
+    pointer-events: auto;
+  }
+  .pad-btn {
+    pointer-events: auto;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .pad-btn:active, .pad-btn.active {
+    background: rgba(255, 213, 79, 0.6);
+    border-color: #ffd54f;
+    transform: scale(0.95);
+  }
 </style>
 </head>
 <body>
-  <div id="stage">
-    <canvas id="game" width="960" height="540" tabindex="0"></canvas>
+  <div id="stage">
+    <canvas id="game" width="960" height="540" tabindex="0"></canvas>
 
-    <!-- UI Touch Buttons -->
-    <div id="touch-pad">
-      <div class="touch-group">
-        <button id="btn-left" class="pad-btn">◀</button>
-        <button id="btn-right" class="pad-btn">▶</button>
-      </div>
-      <div class="touch-group">
-        <button id="btn-up" class="pad-btn">▲</button>
-      </div>
-    </div>
-  </div>
+    <!-- UI Touch Buttons -->
+    <div id="touch-pad">
+      <div class="touch-group">
+        <button id="btn-left" class="pad-btn">◀</button>
+        <button id="btn-right" class="pad-btn">▶</button>
+      </div>
+      <div class="touch-group">
+        <button id="btn-up" class="pad-btn">▲</button>
+      </div>
+    </div>
+  </div>
 
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// 1. MUAT TURUN GAMBAR & SPRITE
+// 1. MUAT TURUN GAMBAR & SPRITE (Disesuaikan mengikut nama fail di GitHub)
 const bgImg = new Image();
 bgImg.src = 'Bg .PNG'; // Background utama
 
 const aryanImg = new Image();
-aryanImg.src = 'Aryan.JPG'; // Sprite Sheet Aryan (Lari/Jalan)
+aryanImg.src = 'Aryan.JPG'; // Sprite Sheet Aryan (Tukar kepada .JPG huruf besar)
 
 const k1Img = new Image();
-k1Img.src = 'K1.jpg'; // Item Kucing 1
+k1Img.src = 'K1.jpg'; // Tukar kepada K1.jpg (K huruf besar, .jpg)
 
 const k2Img = new Image();
-k2Img.src = 'K2.jpg'; // Item Kucing 2
+k2Img.src = 'K2.jpg'; // Tukar kepada K2.jpg (K huruf besar, .jpg)
 
 const bImg = new Image();
-bImg.src = 'B.jpg';   // Item B
+bImg.src = 'B.jpg';   // Tukar kepada B.jpg (B huruf besar, .jpg)
 
-// 2. TETAPAN PLATFORM / SCENE (Sesuai dengan Visual BG)
-// Platform dirangka mengikut susunan visual latar belakang
+// 2. TETAPAN PLATFORM / SCENE
 const platforms = [
-  { x: 0,   y: 450, w: 960, h: 90 }, // Tanah Utama / Ground Level
-  { x: 120, y: 340, w: 180, h: 20 }, // Platform Terapung Kiri
-  { x: 390, y: 260, w: 200, h: 20 }, // Platform Terapung Tengah (Tinggi)
-  { x: 670, y: 340, w: 180, h: 20 }  // Platform Terapung Kanan
+  { x: 0,   y: 450, w: 960, h: 90 }, // Tanah Utama
+  { x: 120, y: 340, w: 180, h: 20 }, // Platform Terapung Kiri
+  { x: 390, y: 260, w: 200, h: 20 }, // Platform Terapung Tengah
+  { x: 670, y: 340, w: 180, h: 20 }  // Platform Terapung Kanan
 ];
 
-// 3. TETAPAN ITEM TERAPUNG (k1, k2, b)
-// Disusun di atas platform dengan animasi terapung (floating offset)
+// 3. TETAPAN ITEM TERAPUNG
 const floatingItems = [
-  { img: k1Img, x: 180, baseY: 280, w: 45, h: 45, bobOffset: 0 },
-  { img: bImg,  x: 470, baseY: 200, w: 45, h: 45, bobOffset: 1.5 },
-  { img: k2Img, x: 730, baseY: 280, w: 45, h: 45, bobOffset: 3.0 }
+  { img: k1Img, x: 180, baseY: 280, w: 45, h: 45, bobOffset: 0 },
+  { img: bImg,  x: 470, baseY: 200, w: 45, h: 45, bobOffset: 1.5 },
+  { img: k2Img, x: 730, baseY: 280, w: 45, h: 45, bobOffset: 3.0 }
 ];
 
 // 4. PLAYER (ARYAN) LOGIC & SPRITE ANIMATION
 const player = {
-  x: 50,
-  y: 350,
-  w: 60,
-  h: 70,
-  speed: 4.5,
-  velX: 0,
-  velY: 0,
-  jumping: false,
-  grounded: false,
-  facingLeft: false,
-  
-  // Settings Frame Sprite Sheet
-  totalFrames: 4,      // Jumlah frame animasi berjalan dalam 1 baris
-  currentFrame: 0,
-  frameTimer: 0,
-  frameSpeed: 6       // Tempoh kelajuan animasi tukar frame
+  x: 50,
+  y: 350,
+  w: 60,
+  h: 70,
+  speed: 4.5,
+  velX: 0,
+  velY: 0,
+  jumping: false,
+  grounded: false,
+  facingLeft: false,
+  
+  totalFrames: 4,
+  currentFrame: 0,
+  frameTimer: 0,
+  frameSpeed: 6
 };
 
-// 5. KAWALAN KEYBOARD & ANDROID TV REMOTE (D-PAD)
+// 5. KAWALAN KEYBOARD & ANDROID TV REMOTE
 const keys = {};
 
 window.addEventListener('keydown', (e) => {
-  keys[e.code] = true;
-  // Menghalang skrin TV daripada scrolling apabila butang D-Pad ditekan
-  if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Enter'].includes(e.code)) {
-    e.preventDefault();
-  }
+  keys[e.code] = true;
+  if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Enter'].includes(e.code)) {
+    e.preventDefault();
+  }
 });
 
 window.addEventListener('keyup', (e) => {
-  keys[e.code] = false;
+  keys[e.code] = false;
 });
 
 // Sokongan Kawalan Touch Screen
 function setupTouchButton(id, keyName) {
-  const btn = document.getElementById(id);
-  btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; btn.classList.add('active'); });
-  btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; btn.classList.remove('active'); });
+  const btn = document.getElementById(id);
+  btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; btn.classList.add('active'); });
+  btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; btn.classList.remove('active'); });
 }
 setupTouchButton('btn-left', 'ArrowLeft');
 setupTouchButton('btn-right', 'ArrowRight');
@@ -180,136 +176,120 @@ setupTouchButton('btn-up', 'ArrowUp');
 let globalTime = 0;
 
 function update() {
-  globalTime += 0.05; // Pembolehubah untuk kesan pergerakan ombak/floating item
+  globalTime += 0.05;
 
-  // A. Pergerakan Kiri & Kanan
-  if (keys['ArrowRight'] || keys['KeyD']) {
-    player.velX = player.speed;
-    player.facingLeft = false;
-  } else if (keys['ArrowLeft'] || keys['KeyA']) {
-    player.velX = -player.speed;
-    player.facingLeft = true;
-  } else {
-    player.velX = 0;
-  }
+  if (keys['ArrowRight'] || keys['KeyD']) {
+    player.velX = player.speed;
+    player.facingLeft = false;
+  } else if (keys['ArrowLeft'] || keys['KeyA']) {
+    player.velX = -player.speed;
+    player.facingLeft = true;
+  } else {
+    player.velX = 0;
+  }
 
-  // B. Lompat (Sokong Butang Up, Space, dan OK/Enter Remote TV)
-  if ((keys['ArrowUp'] || keys['Space'] || keys['Enter']) && player.grounded) {
-    player.velY = -12.5;
-    player.grounded = false;
-  }
+  if ((keys['ArrowUp'] || keys['Space'] || keys['Enter']) && player.grounded) {
+    player.velY = -12.5;
+    player.grounded = false;
+  }
 
-  // C. Aplikasi Graviti
-  player.velY += 0.55;
-  player.x += player.velX;
-  player.y += player.velY;
+  player.velY += 0.55;
+  player.x += player.velX;
+  player.y += player.velY;
 
-  // D. Collision Detection Dengan Platform
-  player.grounded = false;
-  for (let p of platforms) {
-    // Semak jika player mendarat atas platform dari atas
-    if (
-      player.x + player.w > p.x &&
-      player.x < p.x + p.w &&
-      player.y + player.h >= p.y &&
-      player.y + player.h - player.velY <= p.y + 10 &&
-      player.velY >= 0
-    ) {
-      player.y = p.y - player.h;
-      player.velY = 0;
-      player.grounded = true;
-    }
-  }
+  player.grounded = false;
+  for (let p of platforms) {
+    if (
+      player.x + player.w > p.x &&
+      player.x < p.x + p.w &&
+      player.y + player.h >= p.y &&
+      player.y + player.h - player.velY <= p.y + 10 &&
+      player.velY >= 0
+    ) {
+      player.y = p.y - player.h;
+      player.velY = 0;
+      player.grounded = true;
+    }
+  }
 
-  // E. Limit Sempadan Skrin
-  if (player.x < 0) player.x = 0;
-  if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
+  if (player.x < 0) player.x = 0;
+  if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
-  // F. Update Frame Animasi Aryan
-  if (player.velX !== 0 && player.grounded) {
-    player.frameTimer++;
-    if (player.frameTimer >= player.frameSpeed) {
-      player.currentFrame = (player.currentFrame + 1) % player.totalFrames;
-      player.frameTimer = 0;
-    }
-  } else if (!player.grounded) {
-    player.currentFrame = 1; // Frame dalam keadaan melompat
-  } else {
-    player.currentFrame = 0; // Frame berdiri/diam
-  }
+  if (player.velX !== 0 && player.grounded) {
+    player.frameTimer++;
+    if (player.frameTimer >= player.frameSpeed) {
+      player.currentFrame = (player.currentFrame + 1) % player.totalFrames;
+      player.frameTimer = 0;
+    }
+  } else if (!player.grounded) {
+    player.currentFrame = 1;
+  } else {
+    player.currentFrame = 0;
+  }
 }
 
 // 7. RENDER / LUKIS DI SKRIN
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // A. Lukis Latar Belakang (BG)
-  if (bgImg.complete && bgImg.naturalWidth !== 0) {
-    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-  } else {
-    // Fallback sekiranya gambar belum siap muat turun
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
+  // A. Lukis BG
+  if (bgImg.complete && bgImg.naturalWidth !== 0) {
+    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
-  // B. Lukis Item Terapung (k1, k2, b) Atas Platform
-  floatingItems.forEach(item => {
-    // Formula animasi mengapung (sinusoid motion)
-    const floatY = item.baseY + Math.sin(globalTime + item.bobOffset) * 6;
+  // B. Lukis Item Terapung
+  floatingItems.forEach(item => {
+    const floatY = item.baseY + Math.sin(globalTime + item.bobOffset) * 6;
 
-    if (item.img.complete && item.img.naturalWidth !== 0) {
-      ctx.drawImage(item.img, item.x, floatY, item.w, item.h);
-    } else {
-      // Fallback
-      ctx.fillStyle = '#ffd54f';
-      ctx.beginPath();
-      ctx.arc(item.x + item.w/2, floatY + item.h/2, item.w/2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  });
+    if (item.img.complete && item.img.naturalWidth !== 0) {
+      ctx.drawImage(item.img, item.x, floatY, item.w, item.h);
+    } else {
+      ctx.fillStyle = '#ffd54f';
+      ctx.beginPath();
+      ctx.arc(item.x + item.w/2, floatY + item.h/2, item.w/2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
 
-  // C. Lukis Sprite Player (Aryan)
-  if (aryanImg.complete && aryanImg.naturalWidth !== 0) {
-    const frameW = aryanImg.width / player.totalFrames;
-    const frameH = aryanImg.height;
+  // C. Lukis Player (Aryan)
+  if (aryanImg.complete && aryanImg.naturalWidth !== 0) {
+    const frameW = aryanImg.width / player.totalFrames;
+    const frameH = aryanImg.height;
 
-    ctx.save();
-    // Pusingkan sprite jika bergerak ke kiri
-    if (player.facingLeft) {
-      ctx.translate(player.x + player.w, player.y);
-      ctx.scale(-1, 1);
-      ctx.drawImage(
-        aryanImg,
-        player.currentFrame * frameW, 0, frameW, frameH,
-        0, 0, player.w, player.h
-      );
-    } else {
-      ctx.drawImage(
-        aryanImg,
-        player.currentFrame * frameW, 0, frameW, frameH,
-        player.x, player.y, player.w, player.h
-      );
-    }
-    ctx.restore();
-  } else {
-    // Fallback bentuk geometri sementara
-    ctx.fillStyle = '#00adb5';
-    ctx.fillRect(player.x, player.y, player.w, player.h);
-  }
+    ctx.save();
+    if (player.facingLeft) {
+      ctx.translate(player.x + player.w, player.y);
+      ctx.scale(-1, 1);
+      ctx.drawImage(
+        aryanImg,
+        player.currentFrame * frameW, 0, frameW, frameH,
+        0, 0, player.w, player.h
+      );
+    } else {
+      ctx.drawImage(
+        aryanImg,
+        player.currentFrame * frameW, 0, frameW, frameH,
+        player.x, player.y, player.w, player.h
+      );
+    }
+    ctx.restore();
+  } else {
+    ctx.fillStyle = '#00adb5';
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+  }
 }
 
 // 8. GAME LOOP
 function loop() {
-  update();
-  draw();
-  requestAnimationFrame(loop);
+  update();
+  draw();
+  requestAnimationFrame(loop);
 }
 
-// Mulakan Permainan
 loop();
 </script>
 </body>
 </html>
-
-
-Tolo
