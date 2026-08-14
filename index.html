@@ -98,25 +98,25 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// Canvas sementara untuk proses buang background hitam Aryan
+// Canvas sementara untuk proses buang background jika perlu
 const pCanvas = document.createElement('canvas');
 const pCtx = pCanvas.getContext('2d');
 
-// 1. MUAT TURUN GAMBAR (Ikut ejaan tepat kat GitHub kau)
+// 1. MUAT TURUN GAMBAR (Ikut ejaan tepat screenshot GitHub kau)
 const bgImg = new Image();
 bgImg.src = 'Bg .PNG';
 
 const aryanImg = new Image();
-aryanImg.src = 'Aryan.JPG';
+aryanImg.src = 'Aryan.JPG.png'; // Updated double extension
 
 const k1Img = new Image();
-k1Img.src = 'K1.jpg';
+k1Img.src = 'K1.jpg.png';       // Updated double extension
 
 const k2Img = new Image();
-k2Img.src = 'K2.jpg';
+k2Img.src = 'K2.jpg.png';       // Updated double extension
 
 const bImg = new Image();
-bImg.src = 'B.jpg';
+bImg.src = 'B.jpg.png';         // Updated double extension
 
 // 2. TETAPAN PLATFORM / SCENE
 const platforms = [
@@ -133,7 +133,7 @@ const floatingItems = [
   { img: k2Img, x: 730, baseY: 280, w: 45, h: 45, bobOffset: 3.0 }
 ];
 
-// 4. TETAPAN PLAYER (ARYAN) - DISESUAIKAN UNTUK GRID 2x3
+// 4. TETAPAN PLAYER (ARYAN) - GRID 2x3 (6 FRAMES)
 const player = {
   x: 50,
   y: 350,
@@ -151,7 +151,7 @@ const player = {
   totalFrames: 6,    // 6 Frame berjalan
   currentFrame: 0,
   frameTimer: 0,
-  frameSpeed: 5      // Kelajuan tukar frame animasi
+  frameSpeed: 5      // Kelajuan animasi
 };
 
 // 5. KAWALAN KEYBOARD & TOUCH
@@ -183,7 +183,7 @@ let globalTime = 0;
 function update() {
   globalTime += 0.05;
 
-  // A. Pergerakan
+  // Pergerakan
   if (keys['ArrowRight'] || keys['KeyD']) {
     player.velX = player.speed;
     player.facingLeft = false;
@@ -194,18 +194,18 @@ function update() {
     player.velX = 0;
   }
 
-  // B. Lompat
+  // Lompat
   if ((keys['ArrowUp'] || keys['Space'] || keys['Enter']) && player.grounded) {
     player.velY = -12.5;
     player.grounded = false;
   }
 
-  // C. Graviti & Posisi
+  // Graviti & Posisi
   player.velY += 0.55;
   player.x += player.velX;
   player.y += player.velY;
 
-  // D. Collision Platforms
+  // Collision Platforms
   player.grounded = false;
   for (let p of platforms) {
     if (
@@ -224,7 +224,7 @@ function update() {
   if (player.x < 0) player.x = 0;
   if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
-  // E. Animasi Frame
+  // Animasi Frame
   if (player.velX !== 0 && player.grounded) {
     player.frameTimer++;
     if (player.frameTimer >= player.frameSpeed) {
@@ -274,7 +274,7 @@ function draw() {
     const sourceX = col * frameW;
     const sourceY = row * frameH;
 
-    // Proses hilangkan background hitam
+    // Tapis background hitam jika masih wujud
     pCanvas.width = frameW;
     pCanvas.height = frameH;
     pCtx.clearRect(0, 0, frameW, frameH);
@@ -284,14 +284,13 @@ function draw() {
       const imgData = pCtx.getImageData(0, 0, frameW, frameH);
       const data = imgData.data;
       for (let i = 0; i < data.length; i += 4) {
-        // Jika piksel berwarna hitam, tukar alpha jadi 0 (transparent)
         if (data[i] < 20 && data[i+1] < 20 && data[i+2] < 20) {
           data[i+3] = 0;
         }
       }
       pCtx.putImageData(imgData, 0, 0);
     } catch(e) {
-      // Fallback sekiranya cross-origin menyekat imageData
+      // Fallback
     }
 
     ctx.save();
