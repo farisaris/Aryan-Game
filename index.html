@@ -2,123 +2,126 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0,
-               maximum-scale=1.0, user-scalable=no,
-               viewport-fit=cover">
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no,
+viewport-fit=cover">
 
 <title>Aryan Adventure</title>
 
 <style>
-* {
-  box-sizing: border-box;
-  -webkit-user-select: none;
-  user-select: none;
+
+*{
+    box-sizing:border-box;
+    user-select:none;
+    -webkit-user-select:none;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-  touch-action: none;
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    touch-action:none;
 }
 
-#stage {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+#stage{
+    position:fixed;
+    inset:0;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width:100vw;
+    height:100vh;
 
-  background: #000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#000;
 }
 
-/* =========================================================
-   GAME CANVAS
-   Sentiasa 16:9
-   ========================================================= */
+#game{
+    display:block;
 
-#game {
-  display: block;
+    width:min(100vw,177.7778vh);
+    height:min(56.25vw,100vh);
 
-  width: min(100vw, 177.7778vh);
-  height: min(56.25vw, 100vh);
+    aspect-ratio:16 / 9;
 
-  aspect-ratio: 16 / 9;
+    background:#000;
 
-  background: #000;
-
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+    image-rendering:pixelated;
+    image-rendering:crisp-edges;
 }
 
-/* =========================================================
+/* =========================
    TOUCH CONTROLS
-   ========================================================= */
+   ========================= */
 
-#touch-pad {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: max(25px, env(safe-area-inset-bottom));
+#touch-pad{
+    position:fixed;
 
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    left:0;
+    right:0;
 
-  padding-left: 30px;
-  padding-right: 30px;
+    bottom:max(25px,env(safe-area-inset-bottom));
 
-  pointer-events: none;
-  z-index: 50;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 55px;
+
+    pointer-events:none;
+
+    z-index:50;
 }
 
-.touch-group {
-  display: flex;
-  gap: 12px;
-  pointer-events: auto;
+.touch-group{
+    display:flex;
+    gap:14px;
+
+    pointer-events:auto;
 }
 
-.pad-btn {
-  width: 64px;
-  height: 64px;
+.pad-btn{
+    width:70px;
+    height:70px;
 
-  border-radius: 50%;
+    border-radius:50%;
 
-  border: 2px solid rgba(255,255,255,0.65);
+    border:2px solid rgba(255,255,255,.65);
 
-  background: rgba(80,80,80,0.55);
+    background:rgba(60,60,60,.65);
 
-  color: white;
+    color:white;
 
-  font-size: 25px;
-  font-weight: bold;
+    font-size:27px;
+    font-weight:bold;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-  padding: 0;
-  margin: 0;
+    padding:0;
+    margin:0;
 
-  outline: none;
+    outline:none;
 
-  -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color:transparent;
 
-  touch-action: none;
+    touch-action:none;
 }
 
-.pad-btn:active {
-  background: rgba(255,255,255,0.35);
-  transform: scale(0.96);
+.pad-btn:active{
+    background:rgba(255,255,255,.35);
+    transform:scale(.96);
 }
+
 </style>
 </head>
 
@@ -126,1101 +129,1263 @@ body {
 
 <div id="stage">
 
-  <canvas
-    id="game"
-    width="960"
-    height="540"
-    tabindex="0">
-  </canvas>
+    <canvas
+        id="game"
+        width="960"
+        height="540">
+    </canvas>
 
 </div>
 
-<!-- TOUCH BUTTONS -->
 
 <div id="touch-pad">
 
-  <div class="touch-group">
-    <button id="btn-left" class="pad-btn">◀</button>
-    <button id="btn-right" class="pad-btn">▶</button>
-  </div>
+    <div class="touch-group">
 
-  <div class="touch-group">
-    <button id="btn-up" class="pad-btn">▲</button>
-  </div>
+        <button
+            id="btn-left"
+            class="pad-btn">
+            ◀
+        </button>
+
+        <button
+            id="btn-right"
+            class="pad-btn">
+            ▶
+        </button>
+
+    </div>
+
+
+    <div class="touch-group">
+
+        <button
+            id="btn-up"
+            class="pad-btn">
+            ▲
+        </button>
+
+    </div>
 
 </div>
 
 
 <script>
 
-/* =========================================================
+/* =====================================================
    CANVAS
-   ========================================================= */
+===================================================== */
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas =
+document.getElementById("game");
+
+const ctx =
+canvas.getContext("2d");
 
 ctx.imageSmoothingEnabled = false;
 
+const W = 960;
+const H = 540;
 
-/* =========================================================
-   ASSET LOADER
-   ========================================================= */
 
-function loadImg(src) {
+/* =====================================================
+   IMAGE LOADER
+===================================================== */
 
-  const img = new Image();
+function loadImg(src){
 
-  img.src = src;
+    const img = new Image();
 
-  return img;
+    img.src = src;
+
+    return img;
 }
 
 
-/* =========================================================
+/* =====================================================
    ASSETS
-   ========================================================= */
+===================================================== */
 
-const bgImg = loadImg("Bg.jpg");
+const bgImg =
+loadImg("Bg.jpg");
 
-const blockImg = loadImg("Bl.png");
-const pipeImg = loadImg("P.png");
+const bImg =
+loadImg("B.png");
 
-const bImg = loadImg("B.png");
-const k1Img = loadImg("K1.png");
-const k2ItemImg = loadImg("K2.png");
+const k1Img =
+loadImg("K1.png");
+
+const k2Img =
+loadImg("K2.png");
 
 
-/* ARYAN WALKING */
+/* ARYAN */
 
 const framesRight = [
-  loadImg("Rd.png"),
-  loadImg("R1.png"),
-  loadImg("R2.png")
+
+    loadImg("Rd.png"),
+    loadImg("R1.png"),
+    loadImg("R2.png")
+
 ];
 
 const framesLeft = [
-  loadImg("Ld.png"),
-  loadImg("L1.png"),
-  loadImg("L2.png")
+
+    loadImg("Ld.png"),
+    loadImg("L1.png"),
+    loadImg("L2.png")
+
 ];
 
 
-/* =========================================================
-   WORLD SETTINGS
-   ========================================================= */
-
-const WORLD_WIDTH = 960;
-const WORLD_HEIGHT = 540;
-
-
-/* =========================================================
-   GROUND
-   ========================================================= */
+/* =====================================================
+   WORLD
+===================================================== */
 
 const GROUND_Y = 450;
 
 
-/* =========================================================
+/* =====================================================
    BRICK SETTINGS
-   =========================================================
-
-   Reference image:
-   960 x 540
-
-   Brick tile:
-   26 x 22
-
-   Kita guna coordinate yang sama dengan reference.
-   ========================================================= */
+===================================================== */
 
 const BRICK_W = 26;
-const BRICK_H = 22;
+const BRICK_H = 20;
 
 
-/* =========================================================
+/* =====================================================
    BRICK STRUCTURES
-   ========================================================= */
+===================================================== */
 
 const blockStructures = [
 
-  /* kiri atas */
-  {
-    x: 158,
-    y: 110,
-    cols: 3,
-    rows: 2
-  },
+    {
+        x:158,
+        y:110,
+        cols:3,
+        rows:2
+    },
 
-  /* kiri bawah */
-  {
-    x: 235,
-    y: 300,
-    cols: 3,
-    rows: 2
-  },
+    {
+        x:235,
+        y:300,
+        cols:3,
+        rows:2
+    },
 
-  /* tengah */
-  {
-    x: 368,
-    y: 190,
-    cols: 3,
-    rows: 2
-  },
+    {
+        x:368,
+        y:190,
+        cols:3,
+        rows:2
+    },
 
-  /* kanan atas */
-  {
-    x: 600,
-    y: 92,
-    cols: 3,
-    rows: 2
-  },
+    {
+        x:600,
+        y:92,
+        cols:3,
+        rows:2
+    },
 
-  /* kanan question blocks */
-  {
-    x: 712,
-    y: 230,
-    cols: 7,
-    rows: 2,
-    hasQuestion: true
-  }
+    {
+        x:712,
+        y:230,
+        cols:7,
+        rows:2,
+        questions:true
+    }
 
 ];
 
 
-/* =========================================================
+/* =====================================================
    PIPE
-   ========================================================= */
+===================================================== */
 
-const pipeData = {
+const pipe = {
 
-  x: 555,
-  y: 360,
+    x:555,
+    y:350,
 
-  w: 68,
-  h: 90
+    w:70,
+    h:100
 
 };
 
 
-/* =========================================================
+/* =====================================================
    PHYSICS PLATFORMS
-   =========================================================
-
-   IMPORTANT:
-   Brick dan pipe collision hanya pada bahagian atas.
-   ========================================================= */
+===================================================== */
 
 const platforms = [
 
-  /* ground */
-  {
-    x: 0,
-    y: GROUND_Y,
-    w: 960,
-    h: 90
-  },
+    /* ground */
 
-  /* brick platforms */
+    {
+        x:0,
+        y:GROUND_Y,
+        w:W,
+        h:90
+    },
 
-  {
-    x: 158,
-    y: 110,
-    w: BRICK_W * 3,
-    h: BRICK_H
-  },
 
-  {
-    x: 235,
-    y: 300,
-    w: BRICK_W * 3,
-    h: BRICK_H
-  },
+    /* bricks */
 
-  {
-    x: 368,
-    y: 190,
-    w: BRICK_W * 3,
-    h: BRICK_H
-  },
+    {
+        x:158,
+        y:110,
+        w:78,
+        h:BRICK_H
+    },
 
-  {
-    x: 600,
-    y: 92,
-    w: BRICK_W * 3,
-    h: BRICK_H
-  },
+    {
+        x:235,
+        y:300,
+        w:78,
+        h:BRICK_H
+    },
 
-  {
-    x: 712,
-    y: 230,
-    w: BRICK_W * 7,
-    h: BRICK_H
-  },
+    {
+        x:368,
+        y:190,
+        w:78,
+        h:BRICK_H
+    },
 
-  /* PIPE TOP SAHAJA */
+    {
+        x:600,
+        y:92,
+        w:78,
+        h:BRICK_H
+    },
 
-  {
-    x: pipeData.x,
-    y: pipeData.y,
-    w: pipeData.w,
-    h: 12
-  }
+    {
+        x:712,
+        y:230,
+        w:182,
+        h:BRICK_H
+    },
+
+
+    /* pipe */
+
+    {
+        x:pipe.x,
+        y:pipe.y,
+        w:pipe.w,
+        h:8
+    }
 
 ];
 
 
-/* =========================================================
+/* =====================================================
    ITEMS
-   ========================================================= */
+===================================================== */
 
 const items = [
 
-  {
-    img: bImg,
+    {
+        img:bImg,
 
-    x: 257,
-    y: 254,
+        x:257,
+        y:254,
 
-    w: 34,
-    h: 46,
+        w:34,
+        h:46,
 
-    collected: false
-  },
+        collected:false
+    },
 
-  {
-    img: k1Img,
+    {
+        img:k1Img,
 
-    x: 388,
-    y: 136,
+        x:388,
+        y:136,
 
-    w: 38,
-    h: 54,
+        w:38,
+        h:54,
 
-    collected: false
-  },
+        collected:false
+    },
 
-  {
-    img: k2ItemImg,
+    {
+        img:k2Img,
 
-    x: 775,
-    y: 150,
+        x:775,
+        y:150,
 
-    w: 34,
-    h: 80,
+        w:38,
+        h:80,
 
-    collected: false
-  }
+        collected:false
+    }
 
 ];
 
 
-/* =========================================================
-   ARYAN
-   ========================================================= */
+/* =====================================================
+   PLAYER
+===================================================== */
 
 const player = {
 
-  x: 42,
-  y: GROUND_Y - 116,
+    x:42,
 
-  w: 40,
-  h: 116,
+    y:GROUND_Y - 110,
 
-  speed: 4,
+    w:40,
+    h:110,
 
-  velX: 0,
-  velY: 0,
+    speed:4,
 
-  gravity: 0.55,
+    velX:0,
+    velY:0,
 
-  jumpPower: 12,
+    gravity:.55,
 
-  grounded: false,
+    jumpPower:12,
 
-  facingLeft: false,
+    grounded:false,
 
-  currentFrame: 0,
+    facingLeft:false,
 
-  frameTimer: 0,
+    currentFrame:0,
 
-  frameSpeed: 7
+    frameTimer:0,
+
+    frameSpeed:7
 
 };
 
 
-/* =========================================================
+/* =====================================================
    INPUT
-   ========================================================= */
+===================================================== */
 
 const keys = {};
 
 
 /* KEYBOARD */
 
-window.addEventListener("keydown", function(e) {
+window.addEventListener(
+    "keydown",
+    function(e){
 
-  keys[e.code] = true;
+        keys[e.code] = true;
 
-  if (
-    e.code === "ArrowLeft" ||
-    e.code === "ArrowRight" ||
-    e.code === "ArrowUp" ||
-    e.code === "Space"
-  ) {
-    e.preventDefault();
-  }
+        if(
+            e.code === "ArrowLeft" ||
+            e.code === "ArrowRight" ||
+            e.code === "ArrowUp" ||
+            e.code === "Space"
+        ){
 
-});
-
-
-window.addEventListener("keyup", function(e) {
-
-  keys[e.code] = false;
-
-});
-
-
-/* =========================================================
-   TOUCH CONTROL
-   ========================================================= */
-
-function setupTouch(id, key) {
-
-  const btn = document.getElementById(id);
-
-  function press(e) {
-
-    e.preventDefault();
-
-    keys[key] = true;
-
-  }
-
-  function release(e) {
-
-    e.preventDefault();
-
-    keys[key] = false;
-
-  }
-
-
-  btn.addEventListener(
-    "touchstart",
-    press,
-    { passive: false }
-  );
-
-  btn.addEventListener(
-    "touchend",
-    release,
-    { passive: false }
-  );
-
-  btn.addEventListener(
-    "touchcancel",
-    release,
-    { passive: false }
-  );
-
-
-  /* Support mouse too */
-
-  btn.addEventListener(
-    "mousedown",
-    press
-  );
-
-  btn.addEventListener(
-    "mouseup",
-    release
-  );
-
-  btn.addEventListener(
-    "mouseleave",
-    release
-  );
-
-}
-
-
-setupTouch("btn-left", "ArrowLeft");
-
-setupTouch("btn-right", "ArrowRight");
-
-setupTouch("btn-up", "ArrowUp");
-
-
-/* =========================================================
-   DRAW BACKGROUND
-   ========================================================= */
-
-function drawBackground() {
-
-  if (
-    bgImg.complete &&
-    bgImg.naturalWidth > 0
-  ) {
-
-    ctx.drawImage(
-      bgImg,
-      0,
-      0,
-      WORLD_WIDTH,
-      WORLD_HEIGHT
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   DRAW BRICKS
-   ========================================================= */
-
-function drawCustomBlocks() {
-
-  blockStructures.forEach(function(structure) {
-
-    for (
-      let row = 0;
-      row < structure.rows;
-      row++
-    ) {
-
-      for (
-        let col = 0;
-        col < structure.cols;
-        col++
-      ) {
-
-        const x =
-          structure.x +
-          col * BRICK_W;
-
-        const y =
-          structure.y +
-          row * BRICK_H;
-
-
-        /*
-         * QUESTION BLOCK
-         *
-         * Position:
-         * top row
-         * column 2 & 4
-         */
-
-        const isQuestion =
-          structure.hasQuestion &&
-          row === 0 &&
-          (col === 2 || col === 4);
-
-
-        if (isQuestion) {
-
-          drawQuestionBlock(
-            x,
-            y
-          );
+            e.preventDefault();
 
         }
 
-        else {
+    }
+);
 
-          drawBrick(
-            x,
-            y
-          );
 
-        }
+window.addEventListener(
+    "keyup",
+    function(e){
 
-      }
+        keys[e.code] = false;
+
+    }
+);
+
+
+/* =====================================================
+   TOUCH
+===================================================== */
+
+function setupTouch(id,key){
+
+    const button =
+    document.getElementById(id);
+
+
+    function down(e){
+
+        e.preventDefault();
+
+        keys[key] = true;
 
     }
 
-  });
+
+    function up(e){
+
+        e.preventDefault();
+
+        keys[key] = false;
+
+    }
+
+
+    button.addEventListener(
+        "touchstart",
+        down,
+        {passive:false}
+    );
+
+    button.addEventListener(
+        "touchend",
+        up,
+        {passive:false}
+    );
+
+    button.addEventListener(
+        "touchcancel",
+        up,
+        {passive:false}
+    );
+
+
+    button.addEventListener(
+        "mousedown",
+        down
+    );
+
+    button.addEventListener(
+        "mouseup",
+        up
+    );
+
+    button.addEventListener(
+        "mouseleave",
+        up
+    );
 
 }
 
 
-/* =========================================================
-   DRAW NORMAL BRICK
-   ========================================================= */
+setupTouch(
+    "btn-left",
+    "ArrowLeft"
+);
 
-function drawBrick(x, y) {
+setupTouch(
+    "btn-right",
+    "ArrowRight"
+);
 
-  /*
-   * Cuba guna asset asal.
-   *
-   * Kalau Bl.png mempunyai transparent padding,
-   * kita crop keseluruhan image supaya brick tak
-   * nampak macam garisan.
-   */
+setupTouch(
+    "btn-up",
+    "ArrowUp"
+);
 
-  if (
-    blockImg.complete &&
-    blockImg.naturalWidth > 0
-  ) {
 
-    ctx.drawImage(
-      blockImg,
-      0,
-      0,
-      blockImg.naturalWidth,
-      blockImg.naturalHeight,
-      x,
-      y,
-      BRICK_W,
-      BRICK_H
-    );
+/* =====================================================
+   BACKGROUND
+===================================================== */
 
-  }
+function drawBackground(){
 
-  else {
+    if(
+        bgImg.complete &&
+        bgImg.naturalWidth > 0
+    ){
 
-    /* fallback brick */
+        ctx.drawImage(
+            bgImg,
+            0,
+            0,
+            W,
+            H
+        );
 
-    ctx.fillStyle = "#a94b24";
+    }
+
+}
+
+
+/* =====================================================
+   PIXEL BRICK
+===================================================== */
+
+function drawBrick(x,y){
+
+    /*
+       Brick dibuat sendiri.
+
+       Ini SENGAJA tak guna Bl.png
+       supaya transparent padding asset
+       tak boleh buat brick jadi line.
+    */
+
+
+    /* base */
+
+    ctx.fillStyle =
+    "#9e3f20";
 
     ctx.fillRect(
-      x,
-      y,
-      BRICK_W,
-      BRICK_H
+        x,
+        y,
+        BRICK_W,
+        BRICK_H
     );
 
-    ctx.strokeStyle = "#5a2514";
 
-    ctx.lineWidth = 2;
+    /* brick top */
 
-    ctx.strokeRect(
-      x,
-      y,
-      BRICK_W,
-      BRICK_H
+    ctx.fillStyle =
+    "#c45b2b";
+
+    ctx.fillRect(
+        x+1,
+        y+1,
+        BRICK_W-2,
+        7
     );
 
-  }
+
+    /* brick bottom */
+
+    ctx.fillStyle =
+    "#7d2c18";
+
+    ctx.fillRect(
+        x+1,
+        y+15,
+        BRICK_W-2,
+        4
+    );
+
+
+    /* mortar */
+
+    ctx.fillStyle =
+    "#542316";
+
+
+    /* horizontal */
+
+    ctx.fillRect(
+        x,
+        y+8,
+        BRICK_W,
+        2
+    );
+
+
+    /* vertical top */
+
+    ctx.fillRect(
+        x+12,
+        y,
+        2,
+        8
+    );
+
+
+    /* vertical bottom */
+
+    ctx.fillRect(
+        x+5,
+        y+10,
+        2,
+        10
+    );
+
+
+    /* highlights */
+
+    ctx.fillStyle =
+    "#e47a3a";
+
+    ctx.fillRect(
+        x+2,
+        y+2,
+        9,
+        2
+    );
 
 }
 
 
-/* =========================================================
+/* =====================================================
    QUESTION BLOCK
-   ========================================================= */
+===================================================== */
 
-function drawQuestionBlock(x, y) {
+function drawQuestionBlock(x,y){
 
-  ctx.fillStyle = "#f7b731";
+    /* border */
 
-  ctx.fillRect(
-    x,
-    y,
-    BRICK_W,
-    BRICK_H
-  );
+    ctx.fillStyle =
+    "#8b521d";
 
-
-  ctx.strokeStyle = "#8e44ad";
-
-  ctx.lineWidth = 2;
-
-  ctx.strokeRect(
-    x + 1,
-    y + 1,
-    BRICK_W - 2,
-    BRICK_H - 2
-  );
+    ctx.fillRect(
+        x,
+        y,
+        BRICK_W,
+        BRICK_H
+    );
 
 
-  ctx.fillStyle = "#fff";
+    /* yellow */
 
-  ctx.font =
+    ctx.fillStyle =
+    "#f5b934";
+
+    ctx.fillRect(
+        x+2,
+        y+2,
+        BRICK_W-4,
+        BRICK_H-4
+    );
+
+
+    /* highlight */
+
+    ctx.fillStyle =
+    "#ffe27a";
+
+    ctx.fillRect(
+        x+4,
+        y+3,
+        7,
+        2
+    );
+
+
+    /* question */
+
+    ctx.fillStyle =
+    "#ffffff";
+
+    ctx.font =
     "bold 16px Arial";
 
-  ctx.textAlign = "center";
+    ctx.textAlign =
+    "center";
 
-  ctx.textBaseline = "middle";
+    ctx.textBaseline =
+    "middle";
 
-
-  ctx.fillText(
-    "?",
-    x + BRICK_W / 2,
-    y + BRICK_H / 2 + 1
-  );
-
-
-  ctx.textAlign = "left";
-
-  ctx.textBaseline = "alphabetic";
-
-}
-
-
-/* =========================================================
-   DRAW PIPE
-   ========================================================= */
-
-function drawPipe() {
-
-  if (
-    pipeImg.complete &&
-    pipeImg.naturalWidth > 0
-  ) {
-
-    ctx.drawImage(
-      pipeImg,
-      0,
-      0,
-      pipeImg.naturalWidth,
-      pipeImg.naturalHeight,
-      pipeData.x,
-      pipeData.y,
-      pipeData.w,
-      pipeData.h
+    ctx.fillText(
+        "?",
+        x + BRICK_W/2,
+        y + BRICK_H/2 + 1
     );
 
-  }
+
+    ctx.textAlign =
+    "left";
+
+    ctx.textBaseline =
+    "alphabetic";
 
 }
 
 
-/* =========================================================
+/* =====================================================
+   DRAW ALL BRICKS
+===================================================== */
+
+function drawBlocks(){
+
+    blockStructures.forEach(
+        structure => {
+
+            for(
+                let r=0;
+                r<structure.rows;
+                r++
+            ){
+
+                for(
+                    let c=0;
+                    c<structure.cols;
+                    c++
+                ){
+
+                    const x =
+                    structure.x +
+                    c * BRICK_W;
+
+                    const y =
+                    structure.y +
+                    r * BRICK_H;
+
+
+                    let question = false;
+
+
+                    if(
+                        structure.questions &&
+                        r === 0 &&
+                        (c === 2 || c === 4)
+                    ){
+
+                        question = true;
+
+                    }
+
+
+                    if(question){
+
+                        drawQuestionBlock(
+                            x,
+                            y
+                        );
+
+                    }
+                    else{
+
+                        drawBrick(
+                            x,
+                            y
+                        );
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   PIXEL PIPE
+===================================================== */
+
+function drawPipe(){
+
+    const x = pipe.x;
+    const y = pipe.y;
+    const w = pipe.w;
+    const h = pipe.h;
+
+
+    /* ======================
+       MAIN PIPE BODY
+    ====================== */
+
+    ctx.fillStyle =
+    "#079b24";
+
+    ctx.fillRect(
+        x+8,
+        y+15,
+        w-16,
+        h-15
+    );
+
+
+    /* dark right */
+
+    ctx.fillStyle =
+    "#056c18";
+
+    ctx.fillRect(
+        x+w-18,
+        y+15,
+        10,
+        h-15
+    );
+
+
+    /* bright middle */
+
+    ctx.fillStyle =
+    "#19d936";
+
+    ctx.fillRect(
+        x+18,
+        y+17,
+        14,
+        h-17
+    );
+
+
+    /* ======================
+       PIPE TOP
+    ====================== */
+
+    ctx.fillStyle =
+    "#087f1d";
+
+    ctx.fillRect(
+        x,
+        y,
+        w,
+        25
+    );
+
+
+    /* top bright */
+
+    ctx.fillStyle =
+    "#16cf30";
+
+    ctx.fillRect(
+        x+7,
+        y+5,
+        w-14,
+        8
+    );
+
+
+    /* top middle */
+
+    ctx.fillStyle =
+    "#0ca928";
+
+    ctx.fillRect(
+        x+8,
+        y+13,
+        w-16,
+        7
+    );
+
+
+    /* dark bottom edge */
+
+    ctx.fillStyle =
+    "#045b15";
+
+    ctx.fillRect(
+        x+3,
+        y+21,
+        w-6,
+        4
+    );
+
+}
+
+
+/* =====================================================
    DRAW ITEMS
-   ========================================================= */
+===================================================== */
 
-function drawItems() {
+function drawItems(){
 
-  items.forEach(function(item) {
+    items.forEach(
+        item => {
 
-    if (item.collected) {
-      return;
-    }
+            if(item.collected){
+                return;
+            }
 
 
-    if (
-      item.img.complete &&
-      item.img.naturalWidth > 0
-    ) {
+            if(
+                item.img.complete &&
+                item.img.naturalWidth > 0
+            ){
 
-      ctx.drawImage(
-        item.img,
-        0,
-        0,
-        item.img.naturalWidth,
-        item.img.naturalHeight,
-        item.x,
-        item.y,
-        item.w,
-        item.h
-      );
+                ctx.drawImage(
+                    item.img,
+                    item.x,
+                    item.y,
+                    item.w,
+                    item.h
+                );
 
-    }
+            }
 
-  });
+        }
+    );
 
 }
 
 
-/* =========================================================
-   COLLISION HELPER
-   ========================================================= */
+/* =====================================================
+   COLLISION
+===================================================== */
 
-function intersects(a, b) {
+function intersects(a,b){
 
-  return (
+    return (
 
-    a.x < b.x + b.w &&
+        a.x <
+        b.x + b.w &&
 
-    a.x + a.w > b.x &&
+        a.x + a.w >
+        b.x &&
 
-    a.y < b.y + b.h &&
+        a.y <
+        b.y + b.h &&
 
-    a.y + a.h > b.y
+        a.y + a.h >
+        b.y
 
-  );
+    );
 
 }
 
 
-/* =========================================================
-   UPDATE PLAYER
-   ========================================================= */
+/* =====================================================
+   PLAYER UPDATE
+===================================================== */
 
-function updatePlayer() {
+function updatePlayer(){
 
-  /* -------------------------------------
-     MOVEMENT
-     ------------------------------------- */
+    /* movement */
 
-  if (
-    keys["ArrowRight"] ||
-    keys["KeyD"]
-  ) {
+    if(
+        keys["ArrowRight"] ||
+        keys["KeyD"]
+    ){
 
-    player.velX = player.speed;
+        player.velX =
+        player.speed;
 
-    player.facingLeft = false;
+        player.facingLeft =
+        false;
 
-  }
+    }
 
-  else if (
-    keys["ArrowLeft"] ||
-    keys["KeyA"]
-  ) {
+    else if(
+        keys["ArrowLeft"] ||
+        keys["KeyA"]
+    ){
 
-    player.velX = -player.speed;
+        player.velX =
+        -player.speed;
 
-    player.facingLeft = true;
+        player.facingLeft =
+        true;
 
-  }
+    }
 
-  else {
+    else{
 
-    player.velX = 0;
+        player.velX = 0;
 
-  }
-
-
-  /* -------------------------------------
-     JUMP
-     ------------------------------------- */
-
-  if (
-    (
-      keys["ArrowUp"] ||
-      keys["Space"] ||
-      keys["KeyW"]
-    ) &&
-    player.grounded
-  ) {
-
-    player.velY =
-      -player.jumpPower;
-
-    player.grounded = false;
-
-  }
+    }
 
 
-  /* -------------------------------------
-     GRAVITY
-     ------------------------------------- */
+    /* jump */
 
-  player.velY += player.gravity;
+    if(
+        (
+            keys["ArrowUp"] ||
+            keys["Space"] ||
+            keys["KeyW"]
+        ) &&
+        player.grounded
+    ){
+
+        player.velY =
+        -player.jumpPower;
+
+        player.grounded =
+        false;
+
+    }
 
 
-  /* -------------------------------------
-     HORIZONTAL
-     ------------------------------------- */
+    /* gravity */
 
-  player.x += player.velX;
+    player.velY +=
+    player.gravity;
 
 
-  /* -------------------------------------
-     VERTICAL
-     ------------------------------------- */
+    /* horizontal */
 
-  const previousBottom =
+    player.x +=
+    player.velX;
+
+
+    /* remember previous bottom */
+
+    const previousBottom =
     player.y + player.h;
 
-  player.y += player.velY;
+
+    /* vertical */
+
+    player.y +=
+    player.velY;
 
 
-  player.grounded = false;
+    player.grounded =
+    false;
 
 
-  /* -------------------------------------
-     PLATFORM COLLISION
-     ------------------------------------- */
+    /* platforms */
 
-  for (
-    let i = 0;
-    i < platforms.length;
-    i++
-  ) {
+    platforms.forEach(
+        p => {
 
-    const p = platforms[i];
+            const horizontal =
+            player.x + player.w > p.x &&
+            player.x < p.x + p.w;
 
 
-    const horizontalCollision =
-      player.x + player.w > p.x &&
-      player.x < p.x + p.w;
+            const landing =
+            previousBottom <= p.y &&
+            player.y + player.h >= p.y;
 
 
-    const crossedPlatform =
-      previousBottom <= p.y &&
-      player.y + player.h >= p.y;
+            if(
+                horizontal &&
+                landing &&
+                player.velY >= 0
+            ){
+
+                player.y =
+                p.y - player.h;
+
+                player.velY =
+                0;
+
+                player.grounded =
+                true;
+
+            }
+
+        }
+    );
 
 
-    if (
-      horizontalCollision &&
-      crossedPlatform &&
-      player.velY >= 0
-    ) {
+    /* screen */
 
-      player.y =
-        p.y - player.h;
+    if(player.x < 0){
 
-      player.velY = 0;
-
-      player.grounded = true;
+        player.x = 0;
 
     }
 
-  }
+
+    if(
+        player.x + player.w > W
+    ){
+
+        player.x =
+        W - player.w;
+
+    }
 
 
-  /* -------------------------------------
-     SCREEN BOUNDARIES
-     ------------------------------------- */
+    /* reset if fall */
 
-  if (player.x < 0) {
+    if(
+        player.y > H + 100
+    ){
 
-    player.x = 0;
+        player.x = 42;
 
-  }
+        player.y =
+        GROUND_Y -
+        player.h;
 
+        player.velY = 0;
 
-  if (
-    player.x + player.w >
-    WORLD_WIDTH
-  ) {
-
-    player.x =
-      WORLD_WIDTH - player.w;
-
-  }
-
-
-  /* -------------------------------------
-     FALL PROTECTION
-     ------------------------------------- */
-
-  if (player.y > WORLD_HEIGHT + 100) {
-
-    player.x = 42;
-
-    player.y =
-      GROUND_Y - player.h;
-
-    player.velY = 0;
-
-  }
+    }
 
 }
 
 
-/* =========================================================
-   COLLECT ITEMS
-   ========================================================= */
+/* =====================================================
+   ITEMS UPDATE
+===================================================== */
 
-function updateItems() {
+function updateItems(){
 
-  items.forEach(function(item) {
+    items.forEach(
+        item => {
 
-    if (item.collected) {
-      return;
-    }
-
-
-    if (intersects(player, item)) {
-
-      item.collected = true;
-
-    }
-
-  });
-
-}
+            if(item.collected){
+                return;
+            }
 
 
-/* =========================================================
-   WALKING ANIMATION
-   ========================================================= */
+            if(
+                intersects(
+                    player,
+                    item
+                )
+            ){
 
-function updateAnimation() {
+                item.collected =
+                true;
 
-  if (
-    player.velX !== 0 &&
-    player.grounded
-  ) {
+            }
 
-    player.frameTimer++;
-
-
-    if (
-      player.frameTimer >=
-      player.frameSpeed
-    ) {
-
-      player.currentFrame =
-        (
-          player.currentFrame + 1
-        ) % 3;
-
-      player.frameTimer = 0;
-
-    }
-
-  }
-
-  else {
-
-    player.currentFrame = 0;
-
-    player.frameTimer = 0;
-
-  }
+        }
+    );
 
 }
 
 
-/* =========================================================
-   DRAW ARYAN
-   ========================================================= */
+/* =====================================================
+   ANIMATION
+===================================================== */
 
-function drawPlayer() {
+function updateAnimation(){
 
-  const frames =
+    if(
+        player.velX !== 0 &&
+        player.grounded
+    ){
+
+        player.frameTimer++;
+
+
+        if(
+            player.frameTimer >=
+            player.frameSpeed
+        ){
+
+            player.currentFrame =
+            (
+                player.currentFrame + 1
+            ) % 3;
+
+            player.frameTimer = 0;
+
+        }
+
+    }
+    else{
+
+        player.currentFrame = 0;
+
+        player.frameTimer = 0;
+
+    }
+
+}
+
+
+/* =====================================================
+   DRAW PLAYER
+===================================================== */
+
+function drawPlayer(){
+
+    const frames =
     player.facingLeft
-      ? framesLeft
-      : framesRight;
+    ? framesLeft
+    : framesRight;
 
 
-  const img =
+    const img =
     frames[player.currentFrame] ||
     frames[0];
 
 
-  if (
-    img.complete &&
-    img.naturalWidth > 0
-  ) {
+    if(
+        img.complete &&
+        img.naturalWidth > 0
+    ){
 
-    ctx.drawImage(
-      img,
-      0,
-      0,
-      img.naturalWidth,
-      img.naturalHeight,
-      player.x,
-      player.y,
-      player.w,
-      player.h
+        ctx.drawImage(
+            img,
+            player.x,
+            player.y,
+            player.w,
+            player.h
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DRAW
+===================================================== */
+
+function draw(){
+
+    ctx.clearRect(
+        0,
+        0,
+        W,
+        H
     );
 
-  }
+
+    /* background */
+
+    drawBackground();
+
+
+    /* bricks */
+
+    drawBlocks();
+
+
+    /* pipe */
+
+    drawPipe();
+
+
+    /* items */
+
+    drawItems();
+
+
+    /* Aryan */
+
+    drawPlayer();
 
 }
 
 
-/* =========================================================
-   MAIN UPDATE
-   ========================================================= */
+/* =====================================================
+   UPDATE
+===================================================== */
 
-function update() {
+function update(){
 
-  updatePlayer();
+    updatePlayer();
 
-  updateItems();
+    updateItems();
 
-  updateAnimation();
-
-}
-
-
-/* =========================================================
-   MAIN DRAW
-   ========================================================= */
-
-function draw() {
-
-  ctx.clearRect(
-    0,
-    0,
-    WORLD_WIDTH,
-    WORLD_HEIGHT
-  );
-
-
-  /* Background */
-
-  drawBackground();
-
-
-  /* Pipe */
-
-  drawPipe();
-
-
-  /* Bricks */
-
-  drawCustomBlocks();
-
-
-  /* Items */
-
-  drawItems();
-
-
-  /* Aryan */
-
-  drawPlayer();
+    updateAnimation();
 
 }
 
 
-/* =========================================================
+/* =====================================================
    GAME LOOP
-   ========================================================= */
+===================================================== */
 
-function gameLoop() {
+function loop(){
 
-  update();
+    update();
 
-  draw();
+    draw();
 
-  requestAnimationFrame(
-    gameLoop
-  );
+    requestAnimationFrame(
+        loop
+    );
 
 }
 
-
-/* =========================================================
-   START
-   ========================================================= */
-
-gameLoop();
+loop();
 
 
-/* =========================================================
-   PREVENT IOS GESTURES
-   ========================================================= */
+/* =====================================================
+   IOS GESTURES
+===================================================== */
 
 document.addEventListener(
-  "gesturestart",
-  function(e) {
-    e.preventDefault();
-  }
+    "gesturestart",
+    e => e.preventDefault()
 );
 
 document.addEventListener(
-  "gesturechange",
-  function(e) {
-    e.preventDefault();
-  }
+    "gesturechange",
+    e => e.preventDefault()
 );
 
 document.addEventListener(
-  "gestureend",
-  function(e) {
-    e.preventDefault();
-  }
+    "gestureend",
+    e => e.preventDefault()
 );
 
 </script>
