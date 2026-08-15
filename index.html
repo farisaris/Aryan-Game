@@ -2,87 +2,48 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<title>Aryan Adventure - Android TV Edition</title>
+<title>Aryan Adventure - Frame Animation Edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
   html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow: hidden;
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    background: #000; overflow: hidden;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     touch-action: none;
   }
   #stage {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
     position: relative;
   }
   canvas {
     background: #000;
-    width: 100%;
-    max-width: 177.78vh; /* 16:9 Aspect Ratio */
-    max-height: 56.25vw;
-    outline: none;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
+    width: 100%; max-width: 177.78vh; max-height: 56.25vw;
+    outline: none; image-rendering: pixelated; image-rendering: crisp-edges;
   }
-
-  /* Kawalan Sentuh (Touch Controls untuk Mobile) */
   #touch-pad {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 24px;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 40px;
-    pointer-events: none;
-    z-index: 20;
-    user-select: none;
+    position: fixed; left: 0; right: 0; bottom: 24px;
+    display: flex; justify-content: space-between; padding: 0 40px;
+    pointer-events: none; z-index: 20; user-select: none;
   }
-  .touch-group {
-    display: flex;
-    gap: 15px;
-    pointer-events: auto;
-  }
+  .touch-group { display: flex; gap: 15px; pointer-events: auto; }
   .pad-btn {
-    pointer-events: auto;
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(4px);
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    color: #fff;
-    font-size: 24px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    pointer-events: auto; width: 65px; height: 65px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);
+    border: 2px solid rgba(255, 255, 255, 0.5); color: #fff;
+    font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
   .pad-btn:active, .pad-btn.active {
-    background: rgba(255, 213, 79, 0.6);
-    border-color: #ffd54f;
-    transform: scale(0.95);
+    background: rgba(255, 213, 79, 0.6); border-color: #ffd54f; transform: scale(0.95);
   }
 </style>
 </head>
 <body>
   <div id="stage">
     <canvas id="game" width="960" height="540" tabindex="0"></canvas>
-
-    <!-- UI Touch Buttons -->
     <div id="touch-pad">
       <div class="touch-group">
         <button id="btn-left" class="pad-btn">◀</button>
@@ -98,75 +59,63 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// Canvas sementara untuk proses buang background jika perlu
 const pCanvas = document.createElement('canvas');
 const pCtx = pCanvas.getContext('2d');
 
-// 1. MUAT TURUN GAMBAR (Ikut ejaan tepat screenshot GitHub kau)
-const bgImg = new Image();
-bgImg.src = 'Bg .PNG';
+// 1. MUAT TURUN GAMBAR BACKGROUND & FLOATING ITEMS
+const bgImg = new Image(); bgImg.src = 'Bg .PNG';
+const k1Img = new Image(); k1Img.src = 'K1.jpg.png';
+const k2ItemImg = new Image(); k2ItemImg.src = 'K2.jpg.png';
+const bImg = new Image(); bImg.src = 'B.jpg.png';
 
-const aryanImg = new Image();
-aryanImg.src = 'Aryan.JPG.png'; // Updated double extension
+// 2. MUAT TURUN FRAME ANIMASI ARYAN
+function loadImg(src) {
+  const img = new Image();
+  img.src = src;
+  return img;
+}
 
-const k1Img = new Image();
-k1Img.src = 'K1.jpg.png';       // Updated double extension
-
-const k2Img = new Image();
-k2Img.src = 'K2.jpg.png';       // Updated double extension
-
-const bImg = new Image();
-bImg.src = 'B.jpg.png';         // Updated double extension
-
-// 2. TETAPAN PLATFORM / SCENE
-const platforms = [
-  { x: 0,   y: 450, w: 960, h: 90 }, // Ground Level
-  { x: 120, y: 340, w: 180, h: 20 }, // Platform Kiri
-  { x: 390, y: 260, w: 200, h: 20 }, // Platform Tengah
-  { x: 670, y: 340, w: 180, h: 20 }  // Platform Kanan
+const framesRight = [
+  loadImg('Kd.jpg'),
+  loadImg('K2.jpg'),
+  loadImg('K3.jpg')
 ];
 
-// 3. ITEM TERAPUNG
+const framesLeft = [
+  loadImg('Ld.jpg'),
+  loadImg('L2.jpg'), // Boleh tukar 'L1_2.jpg' jika nama fail kat repo kau guna nama tu
+  loadImg('L3.jpg')
+];
+
+// 3. PLATFORM & ITEMS
+const platforms = [
+  { x: 0,   y: 450, w: 960, h: 90 },
+  { x: 120, y: 340, w: 180, h: 20 },
+  { x: 390, y: 260, w: 200, h: 20 },
+  { x: 670, y: 340, w: 180, h: 20 }
+];
+
 const floatingItems = [
   { img: k1Img, x: 180, baseY: 280, w: 45, h: 45, bobOffset: 0 },
   { img: bImg,  x: 470, baseY: 200, w: 45, h: 45, bobOffset: 1.5 },
-  { img: k2Img, x: 730, baseY: 280, w: 45, h: 45, bobOffset: 3.0 }
+  { img: k2ItemImg, x: 730, baseY: 280, w: 45, h: 45, bobOffset: 3.0 }
 ];
 
-// 4. TETAPAN PLAYER (ARYAN) - GRID 2x3 (6 FRAMES)
+// 4. PLAYER OBJECT
 const player = {
-  x: 50,
-  y: 350,
-  w: 50,
-  h: 70,
-  speed: 4.5,
-  velX: 0,
-  velY: 0,
-  jumping: false,
-  grounded: false,
-  facingLeft: false,
-  
-  cols: 2,           // 2 Lajur
-  rows: 3,           // 3 Baris
-  totalFrames: 6,    // 6 Frame berjalan
-  currentFrame: 0,
-  frameTimer: 0,
-  frameSpeed: 5      // Kelajuan animasi
+  x: 50, y: 350, w: 55, h: 75,
+  speed: 4.5, velX: 0, velY: 0,
+  jumping: false, grounded: false, facingLeft: false,
+  currentFrame: 0, frameTimer: 0, frameSpeed: 6
 };
 
-// 5. KAWALAN KEYBOARD & TOUCH
+// 5. INPUT CONTROLS
 const keys = {};
-
 window.addEventListener('keydown', (e) => {
   keys[e.code] = true;
-  if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Enter'].includes(e.code)) {
-    e.preventDefault();
-  }
+  if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Enter'].includes(e.code)) e.preventDefault();
 });
-
-window.addEventListener('keyup', (e) => {
-  keys[e.code] = false;
-});
+window.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
 function setupTouchButton(id, keyName) {
   const btn = document.getElementById(id);
@@ -177,13 +126,11 @@ setupTouchButton('btn-left', 'ArrowLeft');
 setupTouchButton('btn-right', 'ArrowRight');
 setupTouchButton('btn-up', 'ArrowUp');
 
-// 6. UPDATE GAME LOGIC
+// 6. UPDATE LOGIC
 let globalTime = 0;
-
 function update() {
   globalTime += 0.05;
 
-  // Pergerakan
   if (keys['ArrowRight'] || keys['KeyD']) {
     player.velX = player.speed;
     player.facingLeft = false;
@@ -194,18 +141,15 @@ function update() {
     player.velX = 0;
   }
 
-  // Lompat
   if ((keys['ArrowUp'] || keys['Space'] || keys['Enter']) && player.grounded) {
     player.velY = -12.5;
     player.grounded = false;
   }
 
-  // Graviti & Posisi
   player.velY += 0.55;
   player.x += player.velX;
   player.y += player.velY;
 
-  // Collision Platforms
   player.grounded = false;
   for (let p of platforms) {
     if (
@@ -224,64 +168,49 @@ function update() {
   if (player.x < 0) player.x = 0;
   if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
-  // Animasi Frame
+  // PENETAPAN ANIMASI FRAME
   if (player.velX !== 0 && player.grounded) {
     player.frameTimer++;
     if (player.frameTimer >= player.frameSpeed) {
-      player.currentFrame = (player.currentFrame + 1) % player.totalFrames;
+      player.currentFrame = (player.currentFrame + 1) % 3; // Loop frame 0 -> 1 -> 2
       player.frameTimer = 0;
     }
-  } else if (!player.grounded) {
-    player.currentFrame = 1; // Frame melompat
   } else {
-    player.currentFrame = 0; // Standby frame
+    player.currentFrame = 0; // Bila stop, automatik guna frame 0 (Kd.jpg atau Ld.jpg)
   }
 }
 
-// 7. RENDER / DRAW FUNCTION
+// 7. RENDER LOGIC
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // A. Lukis Background
   if (bgImg.complete && bgImg.naturalWidth !== 0) {
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-  } else {
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // B. Lukis Floating Items
   floatingItems.forEach(item => {
     const floatY = item.baseY + Math.sin(globalTime + item.bobOffset) * 6;
     if (item.img.complete && item.img.naturalWidth !== 0) {
       ctx.drawImage(item.img, item.x, floatY, item.w, item.h);
-    } else {
-      ctx.fillStyle = '#ffd54f';
-      ctx.beginPath();
-      ctx.arc(item.x + item.w/2, floatY + item.h/2, item.w/2, 0, Math.PI * 2);
-      ctx.fill();
     }
   });
 
-  // C. Lukis Player (Aryan Grid 2x3)
-  if (aryanImg.complete && aryanImg.naturalWidth !== 0) {
-    const frameW = aryanImg.width / player.cols;
-    const frameH = aryanImg.height / player.rows;
+  // Pilih set frame bergantung arah pandang (Kiri / Kanan)
+  const currentSet = player.facingLeft ? framesLeft : framesRight;
+  const activeImg = currentSet[player.currentFrame];
 
-    const col = player.currentFrame % player.cols;
-    const row = Math.floor(player.currentFrame / player.cols);
+  if (activeImg && activeImg.complete && activeImg.naturalWidth !== 0) {
+    const w = activeImg.width;
+    const h = activeImg.height;
 
-    const sourceX = col * frameW;
-    const sourceY = row * frameH;
+    pCanvas.width = w;
+    pCanvas.height = h;
+    pCtx.clearRect(0, 0, w, h);
+    pCtx.drawImage(activeImg, 0, 0);
 
-    // Tapis background hitam jika masih wujud
-    pCanvas.width = frameW;
-    pCanvas.height = frameH;
-    pCtx.clearRect(0, 0, frameW, frameH);
-    pCtx.drawImage(aryanImg, sourceX, sourceY, frameW, frameH, 0, 0, frameW, frameH);
-
+    // Chroma key automatik untuk padam background hitam gambar frame
     try {
-      const imgData = pCtx.getImageData(0, 0, frameW, frameH);
+      const imgData = pCtx.getImageData(0, 0, w, h);
       const data = imgData.data;
       for (let i = 0; i < data.length; i += 4) {
         if (data[i] < 20 && data[i+1] < 20 && data[i+2] < 20) {
@@ -289,32 +218,17 @@ function draw() {
         }
       }
       pCtx.putImageData(imgData, 0, 0);
-    } catch(e) {
-      // Fallback
-    }
+    } catch(e) {}
 
-    ctx.save();
-    if (player.facingLeft) {
-      ctx.translate(player.x + player.w, player.y);
-      ctx.scale(-1, 1);
-      ctx.drawImage(pCanvas, 0, 0, frameW, frameH, 0, 0, player.w, player.h);
-    } else {
-      ctx.drawImage(pCanvas, 0, 0, frameW, frameH, player.x, player.y, player.w, player.h);
-    }
-    ctx.restore();
-  } else {
-    ctx.fillStyle = '#00adb5';
-    ctx.fillRect(player.x, player.y, player.w, player.h);
+    ctx.drawImage(pCanvas, 0, 0, w, h, player.x, player.y, player.w, player.h);
   }
 }
 
-// 8. GAME LOOP
 function loop() {
   update();
   draw();
   requestAnimationFrame(loop);
 }
-
 loop();
 </script>
 </body>
