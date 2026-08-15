@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<title>Aryan Adventure - Frame Animation Edition</title>
+<title>Aryan Adventure - Exact Proportion Edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   * { box-sizing: border-box; }
@@ -62,13 +62,12 @@ const ctx = canvas.getContext('2d');
 const pCanvas = document.createElement('canvas');
 const pCtx = pCanvas.getContext('2d');
 
-// 1. GAMBAR BACKGROUND & ITEM FLOATING (Ikut exact nama kat repo GitHub kau)
-const bgImg = new Image(); bgImg.src = 'Bg .PNG';
+// 1. ASSET IMAGES (Dah selaraskan Bg .PNG.JPG ikut screenshot repo GitHub)
+const bgImg = new Image(); bgImg.src = 'Bg .PNG.JPG';
 const k1Img = new Image(); k1Img.src = 'K1.jpg.png';
 const k2ItemImg = new Image(); k2ItemImg.src = 'K2.jpg.png';
 const bImg = new Image(); bImg.src = 'B.jpg.png';
 
-// 2. LOAD FRAME ARYAN (UPDATE EXTENSION KE .png)
 function loadImg(src) {
   const img = new Image();
   img.src = src;
@@ -87,23 +86,37 @@ const framesLeft = [
   loadImg('L3.png')
 ];
 
-// 3. PLATFORM & ITEMS
+// 2. LEVEL PLATFORMS (Fizik kolisi sahaja)
 const platforms = [
-  { x: 0,   y: 450, w: 960, h: 90 },
-  { x: 120, y: 340, w: 180, h: 20 },
-  { x: 390, y: 260, w: 200, h: 20 },
-  { x: 670, y: 340, w: 180, h: 20 }
+  // Lantai Rumput Utama (Y: 465)
+  { x: 0, y: 465, w: 960, h: 75 },
+  
+  // Platform Blok Kiri Atas
+  { x: 156, y: 112, w: 76, h: 42 },
+  
+  // Platform Tangga 1 (Bawah ulat)
+  { x: 235, y: 300, w: 76, h: 42 },
+  
+  // Platform Tangga 2 (Bawah kucing hitam)
+  { x: 368, y: 188, w: 76, h: 42 },
+  
+  // Platform Kanan Atas
+  { x: 598, y: 92, w: 76, h: 42 },
+  
+  // Platform Panjang Kanan (Bawah kucing oren)
+  { x: 712, y: 242, w: 190, h: 42 }
 ];
 
+// 3. SUSUNAN PROPORSI ITEM & KUCING
 const floatingItems = [
-  { img: k1Img, x: 180, baseY: 280, w: 45, h: 45, bobOffset: 0 },
-  { img: bImg,  x: 470, baseY: 200, w: 45, h: 45, bobOffset: 1.5 },
-  { img: k2ItemImg, x: 730, baseY: 280, w: 45, h: 45, bobOffset: 3.0 }
+  { img: bImg, x: 255, y: 240, w: 35, h: 60 },
+  { img: k1Img, x: 388, y: 132, w: 38, h: 56 },
+  { img: k2ItemImg, x: 770, y: 150, w: 42, h: 92 }
 ];
 
 // 4. PLAYER OBJECT
 const player = {
-  x: 50, y: 350, w: 55, h: 75,
+  x: 45, y: 340, w: 42, h: 125,
   speed: 4.5, velX: 0, velY: 0,
   jumping: false, grounded: false, facingLeft: false,
   currentFrame: 0, frameTimer: 0, frameSpeed: 6
@@ -127,10 +140,7 @@ setupTouchButton('btn-right', 'ArrowRight');
 setupTouchButton('btn-up', 'ArrowUp');
 
 // 6. UPDATE LOGIC
-let globalTime = 0;
 function update() {
-  globalTime += 0.05;
-
   if (keys['ArrowRight'] || keys['KeyD']) {
     player.velX = player.speed;
     player.facingLeft = false;
@@ -156,7 +166,7 @@ function update() {
       player.x + player.w > p.x &&
       player.x < p.x + p.w &&
       player.y + player.h >= p.y &&
-      player.y + player.h - player.velY <= p.y + 10 &&
+      player.y + player.h - player.velY <= p.y + 12 &&
       player.velY >= 0
     ) {
       player.y = p.y - player.h;
@@ -168,58 +178,60 @@ function update() {
   if (player.x < 0) player.x = 0;
   if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
-  // ANIMASI FRAME BERJALAN & IDLE
+  // ANIMASI FRAME
   if (player.velX !== 0 && player.grounded) {
     player.frameTimer++;
     if (player.frameTimer >= player.frameSpeed) {
-      player.currentFrame = (player.currentFrame + 1) % 3; // Loop frame 0 -> 1 -> 2
+      player.currentFrame = (player.currentFrame + 1) % 3;
       player.frameTimer = 0;
     }
   } else {
-    player.currentFrame = 0; // Bila stop, stay kat frame 0 (Kd.png / Ld.png)
+    player.currentFrame = 0;
   }
 }
 
-// 7. RENDER LOGIC
+// 7. HELPER FUNCTION UNTUK KECUALIKAN CHROMABG & DRAW
+function drawProcessedImage(img, x, y, w, h) {
+  if (!img.complete || img.naturalWidth === 0) return;
+  
+  pCanvas.width = img.width;
+  pCanvas.height = img.height;
+  pCtx.clearRect(0, 0, img.width, img.height);
+  pCtx.drawImage(img, 0, 0);
+
+  try {
+    const imgData = pCtx.getImageData(0, 0, img.width, img.height);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i] < 20 && data[i+1] < 20 && data[i+2] < 20) {
+        data[i+3] = 0;
+      }
+    }
+    pCtx.putImageData(imgData, 0, 0);
+  } catch(e) {}
+
+  ctx.drawImage(pCanvas, 0, 0, img.width, img.height, x, y, w, h);
+}
+
+// 8. RENDER LOGIC
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Lukis Background Utama
   if (bgImg.complete && bgImg.naturalWidth !== 0) {
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
   }
 
+  // Lukis Item & Kucing
   floatingItems.forEach(item => {
-    const floatY = item.baseY + Math.sin(globalTime + item.bobOffset) * 6;
-    if (item.img.complete && item.img.naturalWidth !== 0) {
-      ctx.drawImage(item.img, item.x, floatY, item.w, item.h);
-    }
+    drawProcessedImage(item.img, item.x, item.y, item.w, item.h);
   });
 
+  // Lukis Watak Aryan
   const currentSet = player.facingLeft ? framesLeft : framesRight;
   const activeImg = currentSet[player.currentFrame];
-
-  if (activeImg && activeImg.complete && activeImg.naturalWidth !== 0) {
-    const w = activeImg.width;
-    const h = activeImg.height;
-
-    pCanvas.width = w;
-    pCanvas.height = h;
-    pCtx.clearRect(0, 0, w, h);
-    pCtx.drawImage(activeImg, 0, 0);
-
-    // Auto chroma key buang background hitam
-    try {
-      const imgData = pCtx.getImageData(0, 0, w, h);
-      const data = imgData.data;
-      for (let i = 0; i < data.length; i += 4) {
-        if (data[i] < 20 && data[i+1] < 20 && data[i+2] < 20) {
-          data[i+3] = 0;
-        }
-      }
-      pCtx.putImageData(imgData, 0, 0);
-    } catch(e) {}
-
-    ctx.drawImage(pCanvas, 0, 0, w, h, player.x, player.y, player.w, player.h);
+  if (activeImg) {
+    drawProcessedImage(activeImg, player.x, player.y, player.w, player.h);
   }
 }
 
