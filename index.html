@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<title>Aryan Adventure - 100% Exact Scale & Position</title>
+<title>Aryan Adventure - Perfect Render & Crop</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   * { box-sizing: border-box; }
@@ -56,8 +56,11 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
+// Helper untuk tambah versioning elak cache browser
 function loadImg(src) {
-  const img = new Image(); img.src = src; return img;
+  const img = new Image(); 
+  img.src = src + '?v=' + Date.now(); 
+  return img;
 }
 
 // 1. ASSET IMAGES
@@ -73,47 +76,46 @@ const k2ItemImg = loadImg('K2.png');
 const framesRight = [loadImg('Rd.png'), loadImg('R1.png'), loadImg('R2.png')];
 const framesLeft = [loadImg('Ld.png'), loadImg('L1.png'), loadImg('L2.png')];
 
-// 2. KOD LUKIS STRUKTUR BLOK BATA & PAIP
-const blockSize = 28; // Saiz grid blok bata yang sesuai
+// 2. KOD STRUKTUR BLOK BATA & PAIP (SUSUNAN EXACT)
+const blockSize = 32;
 
 const blockStructures = [
-  { x: 158, y: 110, cols: 3, rows: 2 },                  // Blok Kiri Atas
-  { x: 235, y: 300, cols: 3, rows: 2 },                  // Blok Bantal
-  { x: 368, y: 190, cols: 3, rows: 2 },                  // Blok Kucing K1
-  { x: 600, y: 92, cols: 3, rows: 2 },                   // Blok Kanan Atas
-  { x: 712, y: 230, cols: 7, rows: 2, hasQuestion: true } // Blok Panjang + Question Box
+  { x: 158, y: 110, cols: 3, rows: 2 },                  // Kiri Atas
+  { x: 235, y: 300, cols: 3, rows: 2 },                  // Bantal
+  { x: 368, y: 190, cols: 3, rows: 2 },                  // Kucing K1
+  { x: 600, y: 92, cols: 3, rows: 2 },                   // Kanan Atas
+  { x: 712, y: 230, cols: 7, rows: 2, hasQuestion: true } // Panjang + Question Box
 ];
 
-// Paip Hijau tunggal di atas rumput (sebelah semak/pagar)
 const pipeData = { x: 555, y: 360, w: 70, h: 90 };
 
 // Platform Fizik
 const platforms = [
   { x: 0, y: 450, w: 960, h: 90 }, // Lantai Rumput
-  { x: 158, y: 110, w: 84, h: 56 },
-  { x: 235, y: 300, w: 84, h: 56 },
-  { x: 368, y: 190, w: 84, h: 56 },
-  { x: 600, y: 92, w: 84, h: 56 },
-  { x: 712, y: 230, w: 196, h: 56 },
+  { x: 158, y: 110, w: 96, h: 64 },
+  { x: 235, y: 300, w: 96, h: 64 },
+  { x: 368, y: 190, w: 96, h: 64 },
+  { x: 600, y: 92, w: 96, h: 64 },
+  { x: 712, y: 230, w: 224, h: 64 },
   { x: pipeData.x, y: pipeData.y, w: pipeData.w, h: pipeData.h }
 ];
 
-// 3. ITEM & PROPORSI (KAPASITI SAIZ BANTAL & KUCING DIBESARKAN)
+// 3. ITEM & PROPORSI
 const items = [
-  { img: bImg, x: 256, y: 242, h: 58, collected: false },     // Bantal B.png
-  { img: k1Img, x: 386, y: 130, h: 60, collected: false },    // Kucing K1.png
-  { img: k2ItemImg, x: 772, y: 135, h: 95, collected: false } // Kucing K2.png
+  { img: bImg, x: 250, y: 235, h: 65, collected: false },     // Bantal
+  { img: k1Img, x: 382, y: 125, h: 65, collected: false },    // Kucing K1
+  { img: k2ItemImg, x: 772, y: 130, h: 100, collected: false } // Kucing K2
 ];
 
 // 4. WATAK ARYAN
 const player = {
-  x: 42, y: 332, h: 118,
+  x: 40, y: 345, h: 105,
   speed: 4, velX: 0, velY: 0,
   grounded: false, facingLeft: false,
   currentFrame: 0, frameTimer: 0, frameSpeed: 7
 };
 
-// 5. HELPER LUKIS SPRITE PROPORSI & PROPORSI NISBAH SEBENAR
+// 5. HELPER LUKIS SPRITE DENGAN PROPORSI RATIO
 function drawSprite(img, x, y, targetHeight) {
   if (!img.complete || img.naturalWidth === 0) return;
   const ratio = img.naturalWidth / img.naturalHeight;
@@ -134,7 +136,6 @@ function drawCustomBlocks() {
         const bx = b.x + (c * blockSize);
         const by = b.y + (r * blockSize);
         
-        // Kotak Soalan (?) untuk Blok Panjang
         if (b.hasQuestion && r === 0 && (c === 2 || c === 4)) {
           ctx.fillStyle = '#f7b731';
           ctx.fillRect(bx, by, blockSize, blockSize);
@@ -143,8 +144,8 @@ function drawCustomBlocks() {
           ctx.strokeRect(bx, by, blockSize, blockSize);
           
           ctx.fillStyle = '#000';
-          ctx.font = 'bold 18px sans-serif';
-          ctx.fillText('?', bx + 8, by + 21);
+          ctx.font = 'bold 20px sans-serif';
+          ctx.fillText('?', bx + 10, by + 23);
         } else {
           if (blockImg.complete && blockImg.naturalWidth !== 0) {
             ctx.drawImage(blockImg, bx, by, blockSize, blockSize);
@@ -178,7 +179,7 @@ setupTouch('btn-left', 'ArrowLeft');
 setupTouch('btn-right', 'ArrowRight');
 setupTouch('btn-up', 'ArrowUp');
 
-// 8. UPDATE GAME LOGIC
+// 8. UPDATE LOGIC
 function update() {
   if (keys['ArrowRight'] || keys['KeyD']) {
     player.velX = player.speed;
