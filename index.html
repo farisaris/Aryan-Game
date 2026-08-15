@@ -62,13 +62,13 @@ const ctx = canvas.getContext('2d');
 const pCanvas = document.createElement('canvas');
 const pCtx = pCanvas.getContext('2d');
 
-// 1. MUAT TURUN GAMBAR BACKGROUND & FLOATING ITEMS
+// 1. GAMBAR BACKGROUND & ITEM FLOATING (Ikut exact nama kat repo GitHub kau)
 const bgImg = new Image(); bgImg.src = 'Bg .PNG';
 const k1Img = new Image(); k1Img.src = 'K1.jpg.png';
 const k2ItemImg = new Image(); k2ItemImg.src = 'K2.jpg.png';
 const bImg = new Image(); bImg.src = 'B.jpg.png';
 
-// 2. MUAT TURUN FRAME ANIMASI ARYAN
+// 2. LOAD FRAME ARYAN (UPDATE EXTENSION KE .png)
 function loadImg(src) {
   const img = new Image();
   img.src = src;
@@ -76,15 +76,15 @@ function loadImg(src) {
 }
 
 const framesRight = [
-  loadImg('Kd.jpg'),
-  loadImg('K2.jpg'),
-  loadImg('K3.jpg')
+  loadImg('Kd.png'),
+  loadImg('K2.png'),
+  loadImg('K3.png')
 ];
 
 const framesLeft = [
-  loadImg('Ld.jpg'),
-  loadImg('L2.jpg'), // Boleh tukar 'L1_2.jpg' jika nama fail kat repo kau guna nama tu
-  loadImg('L3.jpg')
+  loadImg('Ld.png'),
+  loadImg('L2.png'),
+  loadImg('L3.png')
 ];
 
 // 3. PLATFORM & ITEMS
@@ -168,7 +168,7 @@ function update() {
   if (player.x < 0) player.x = 0;
   if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
-  // PENETAPAN ANIMASI FRAME
+  // ANIMASI FRAME BERJALAN & IDLE
   if (player.velX !== 0 && player.grounded) {
     player.frameTimer++;
     if (player.frameTimer >= player.frameSpeed) {
@@ -176,7 +176,7 @@ function update() {
       player.frameTimer = 0;
     }
   } else {
-    player.currentFrame = 0; // Bila stop, automatik guna frame 0 (Kd.jpg atau Ld.jpg)
+    player.currentFrame = 0; // Bila stop, stay kat frame 0 (Kd.png / Ld.png)
   }
 }
 
@@ -195,7 +195,6 @@ function draw() {
     }
   });
 
-  // Pilih set frame bergantung arah pandang (Kiri / Kanan)
   const currentSet = player.facingLeft ? framesLeft : framesRight;
   const activeImg = currentSet[player.currentFrame];
 
@@ -208,7 +207,7 @@ function draw() {
     pCtx.clearRect(0, 0, w, h);
     pCtx.drawImage(activeImg, 0, 0);
 
-    // Chroma key automatik untuk padam background hitam gambar frame
+    // Auto chroma key buang background hitam
     try {
       const imgData = pCtx.getImageData(0, 0, w, h);
       const data = imgData.data;
