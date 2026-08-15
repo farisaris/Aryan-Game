@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<title>Aryan Adventure - Exact Design Replica</title>
+<title>Aryan Adventure - Exact GitHub Filenames</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   * { box-sizing: border-box; }
@@ -56,61 +56,57 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// 1. ASSET IMAGES
-const bgImg = new Image(); bgImg.src = 'Bg .PNG.JPG';
-const k1Img = new Image(); k1Img.src = 'K1.jpg.png';
-const k2ItemImg = new Image(); k2ItemImg.src = 'K2.jpg.png';
-const bImg = new Image(); bImg.src = 'B.jpg.png';
-
 function loadImg(src) {
   const img = new Image(); img.src = src; return img;
 }
 
-const framesRight = [loadImg('Kd.png'), loadImg('K2.png'), loadImg('K3.png')];
-const framesLeft = [loadImg('Ld.png'), loadImg('L2.png'), loadImg('L3.png')];
+// 1. ASSET IMAGES (Mengikut fail dalam GitHub kau)
+const bgImg = loadImg('Bg.jpg');
+const blockImg = loadImg('Bl.png');
+const pipeImg = loadImg('P.png');
 
-// 2. KOD LUKIS BOK BATA (MENGIKUT DESIGN DESIGN 100%)
+const bImg = loadImg('B.png');
+const k1Img = loadImg('K1.png');
+const k2ItemImg = loadImg('K2.png');
+
+// Watak Aryan
+const framesRight = [loadImg('Rd.png'), loadImg('R1.png'), loadImg('R2.png')];
+const framesLeft = [loadImg('Ld.png'), loadImg('L1.png'), loadImg('L2.png')];
+
+// 2. KOD LUKIS STRUKTUR BLOK BATA & PAIP
 const blockStructures = [
-  // Platform Kiri Atas (3 blok)
   { x: 158, y: 110, cols: 3, rows: 2 },
-  
-  // Platform Tangga 1 - Bawah Ulat (3 blok)
   { x: 235, y: 300, cols: 3, rows: 2 },
-  
-  // Platform Tangga 2 - Bawah Kucing Hitam (3 blok)
   { x: 368, y: 190, cols: 3, rows: 2 },
-  
-  // Platform Kanan Atas (3 blok)
   { x: 600, y: 92, cols: 3, rows: 2 },
-  
-  // Platform Panjang Kanan - Bawah Kucing Oren (7 blok + 2 kotak ?)
   { x: 712, y: 230, cols: 7, rows: 2, hasQuestion: true }
 ];
 
-// Physical Platforms for Collision
+const pipes = [
+  { x: 100, y: 370, h: 80 },
+  { x: 520, y: 350, h: 100 }
+];
+
+// Platform Fizik (Termasuk Lantai, Bata, dan Paip Hijau)
 const platforms = [
-  // Lantai Rumput Utama (Diubah Y: 470 supaya kaki jejak rumput)
-  { x: 0, y: 470, w: 960, h: 70 },
-  { x: 235, y: 300, w: 76, h: 40 },
-  { x: 368, y: 190, w: 76, h: 40 },
-  { x: 712, y: 230, w: 190, h: 40 }
+  { x: 0, y: 450, w: 960, h: 90 }, // Lantai Rumput
+  { x: 235, y: 300, w: 78, h: 40 },
+  { x: 368, y: 190, w: 78, h: 40 },
+  { x: 712, y: 230, w: 182, h: 40 },
+  { x: 100, y: 370, w: 50, h: 80 }, // Fizik Paip 1
+  { x: 520, y: 350, w: 50, h: 100 } // Fizik Paip 2
 ];
 
-// 3. SUSUNAN PROPORSI ITEM & KUCING
+// 3. ITEM & PROPORSI
 const items = [
-  // Ulat (Duduk atas platform 1)
-  { img: bImg, x: 258, y: 252, h: 48, collected: false },
-  
-  // Kucing Hitam-Putih (Duduk atas platform 2)
-  { img: k1Img, x: 388, y: 140, h: 50, collected: false },
-  
-  // Kucing Oren (Duduk atas platform 3)
-  { img: k2ItemImg, x: 772, y: 152, h: 78, collected: false }
+  { img: bImg, x: 256, y: 250, h: 50, collected: false },
+  { img: k1Img, x: 386, y: 138, h: 52, collected: false },
+  { img: k2ItemImg, x: 772, y: 148, h: 82, collected: false }
 ];
 
-// 4. PLAYER ARYAN (Kaki tepat berdiri atas rumput)
+// 4. WATAK ARYAN
 const player = {
-  x: 42, y: 352, h: 118,
+  x: 42, y: 332, h: 118,
   speed: 4, velX: 0, velY: 0,
   grounded: false, facingLeft: false,
   currentFrame: 0, frameTimer: 0, frameSpeed: 7
@@ -129,7 +125,7 @@ function getSpriteWidth(img, targetHeight) {
   return targetHeight * (img.naturalWidth / img.naturalHeight);
 }
 
-// 6. HELPER LUKIS BATA & KOTAK QUESTION
+// 6. HELPER LUKIS BATA & PAIP
 function drawCustomBlocks() {
   const blockSize = 26;
   
@@ -139,9 +135,7 @@ function drawCustomBlocks() {
         const bx = b.x + (c * blockSize);
         const by = b.y + (r * blockSize);
         
-        // Cek kalau kotak ? di platform kanan
         if (b.hasQuestion && r === 0 && (c === 2 || c === 4)) {
-          // Kotak Question Mark (?)
           ctx.fillStyle = '#f7b731';
           ctx.fillRect(bx, by, blockSize, blockSize);
           ctx.strokeStyle = '#a55ee0';
@@ -152,21 +146,21 @@ function drawCustomBlocks() {
           ctx.font = 'bold 16px sans-serif';
           ctx.fillText('?', bx + 7, by + 19);
         } else {
-          // Blok Bata Merah
-          ctx.fillStyle = '#b33939';
-          ctx.fillRect(bx, by, blockSize, blockSize);
-          ctx.strokeStyle = '#4b1212';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(bx, by, blockSize, blockSize);
-          
-          // Tekstur garisan bata
-          ctx.beginPath();
-          ctx.moveTo(bx, by + 13); ctx.lineTo(bx + blockSize, by + 13);
-          ctx.moveTo(bx + 13, by); ctx.lineTo(bx + 13, by + 13);
-          ctx.stroke();
+          if (blockImg.complete && blockImg.naturalWidth !== 0) {
+            ctx.drawImage(blockImg, bx, by, blockSize, blockSize);
+          } else {
+            ctx.fillStyle = '#b33939';
+            ctx.fillRect(bx, by, blockSize, blockSize);
+          }
         }
       }
     }
+  });
+}
+
+function drawPipes() {
+  pipes.forEach(p => {
+    drawSprite(pipeImg, p.x, p.y, p.h);
   });
 }
 
@@ -205,16 +199,18 @@ function update() {
   player.x += player.velX;
   player.y += player.velY;
 
-  const playerW = getSpriteWidth(framesRight[0], player.h);
+  const activeSet = player.facingLeft ? framesLeft : framesRight;
+  const currentSprite = activeSet[player.currentFrame] || activeSet[0];
+  const playerW = getSpriteWidth(currentSprite, player.h);
 
-  // Fizik platform (Pijak rumput & bata)
+  // Fizik Pijak Platform (Lantai, Blok Bata, dan Paip)
   player.grounded = false;
   for (let p of platforms) {
     if (
       player.x + playerW > p.x &&
       player.x < p.x + p.w &&
       player.y + player.h >= p.y &&
-      player.y + player.h - player.velY <= p.y + 12 &&
+      player.y + player.h - player.velY <= p.y + 14 &&
       player.velY >= 0
     ) {
       player.y = p.y - player.h;
@@ -223,11 +219,11 @@ function update() {
     }
   }
 
-  // Sempadan Skrin
+  // Sempadan Skrin Kiri/Kanan
   if (player.x < 0) player.x = 0;
   if (player.x + playerW > canvas.width) player.x = canvas.width - playerW;
 
-  // Kutip Item (Hilang bila disentuh)
+  // Semak Kutipan Item
   items.forEach(item => {
     if (!item.collected) {
       const itemW = getSpriteWidth(item.img, item.h);
@@ -258,22 +254,25 @@ function update() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1. Latar Belakang
+  // Latar Belakang (Bg.jpg)
   if (bgImg.complete && bgImg.naturalWidth !== 0) {
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
   }
 
-  // 2. Lukis Blok Bata
+  // Lukis Paip Hijau
+  drawPipes();
+
+  // Lukis Blok Bata
   drawCustomBlocks();
 
-  // 3. Lukis Items
+  // Lukis Items
   items.forEach(item => {
     if (!item.collected) {
       drawSprite(item.img, item.x, item.y, item.h);
     }
   });
 
-  // 4. Lukis Watak Aryan
+  // Lukis Watak Aryan
   const currentSet = player.facingLeft ? framesLeft : framesRight;
   const activeImg = currentSet[player.currentFrame] || currentSet[0];
   drawSprite(activeImg, player.x, player.y, player.h);
